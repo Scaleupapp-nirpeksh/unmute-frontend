@@ -10,6 +10,7 @@ import CreateVent from './pages/Vent/CreateVent';
 import SearchVents from './pages/Vent/SearchVents';
 import MyVents from './pages/Vent/MyVents';
 import VentLayout from './pages/Vent/VentLayout';
+import Matches from './pages/Matches/Matches';  // <-- Import the Matches page
 import logo from './assets/logo.png';
 import SplashScreen from './components/SplashScreen';
 import './App.css';
@@ -35,6 +36,7 @@ function App() {
               <div className="App-nav-links">
                 <Link to="/" className="App-link">Home</Link>
                 <Link to="/vents" className="App-link">Vents</Link>
+                <Link to="/matches" className="App-link">Matches</Link>  {/* <-- New link */}
                 <Link to="/login" className="App-link">Login</Link>
                 <Link to="/signup" className="App-link">Sign Up</Link>
               </div>
@@ -45,9 +47,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-
+              
               {/* Main Vent Section */}
-              {/* You can use either /vents for a full feed or nest under /vent */}
               <Route path="/vents" element={<VentFeed />} />
               <Route path="/vent" element={<VentLayout />}>
                 <Route path="create" element={<CreateVent />} />
@@ -55,6 +56,9 @@ function App() {
                 <Route path=":ventId" element={<VentDetail />} />
               </Route>
               <Route path="/myvents" element={<MyVents />} />
+
+              {/* Matches Route */}
+              <Route path="/matches" element={<Matches />} />  {/* <-- New route */}
             </Routes>
           </div>
         </Router>
