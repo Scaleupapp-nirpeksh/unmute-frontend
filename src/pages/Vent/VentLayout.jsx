@@ -6,8 +6,8 @@ import { Box, Button } from '@mui/material';
 export default function VentLayout() {
   return (
     <Box sx={{ p: 3, minHeight: '100vh', background: 'linear-gradient(135deg, #80DEEA, #CE93D8)' }}>
-      {/* Vent sub-navigation */}
-      <Box sx={{ mb: 3, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+      {/* Vent Sub‑Navigation */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
         <Button component={Link} to="/vents" variant="contained" sx={{ backgroundColor: '#4a90e2' }}>
           Vent Feed
         </Button>
@@ -21,8 +21,7 @@ export default function VentLayout() {
           My Vents
         </Button>
       </Box>
-      
-      {/* Nested vent pages render here */}
+      {/* Render nested vent pages */}
       <Outlet />
     </Box>
   );
