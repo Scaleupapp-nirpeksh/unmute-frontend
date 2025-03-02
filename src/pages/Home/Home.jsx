@@ -387,6 +387,18 @@ export default function Home() {
         </CardContent>
       </Card>
 
+      {/* Find Matches Button - now placed right after the profile card */}
+      <Box sx={{ mt: 2, width: '100%', textAlign: 'center' }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => navigate('/matches')}
+          sx={{ textTransform: 'none', fontSize: '1.2rem', px: 3, py: 1 }}
+        >
+          Find Matches
+        </Button>
+      </Box>
+
       {/* Vent Preview Section */}
       <Box sx={{ mt: 4, width: '100%', textAlign: 'center' }}>
         <Typography variant="h4" sx={{ mb: 2, color: '#333', fontSize: '2rem' }}>
