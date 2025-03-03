@@ -1,5 +1,5 @@
-/* Import Poppins font in your HTML or add below in your CSS file */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap'); 
+/* Import Poppins font (or any other preferred font) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
 
 .App {
   text-align: center;
@@ -8,35 +8,40 @@
   flex-direction: column;
 }
 
+/* Navigation Bar */
 .App-nav {
-  padding: 20px;
+  padding: 10px 20px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  background-color: #4a90e2;  /* Matches logo color */
+  background-color: #4a90e2; /* Matches logo color */
 }
 
 .App-logo-container {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .App-logo {
-  height: 60px;  /* Increased logo size */
+  height: 50px;
   pointer-events: none;
 }
 
 .App-nav-links {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
 }
 
 .App-link {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  color: #fff;  /* White text for contrast */
+  color: #fff;
   text-decoration: none;
-  padding: 10px 15px;
+  padding: 8px 12px;
   border-radius: 4px;
   transition: background-color 0.3s, transform 0.3s;
 }
@@ -46,11 +51,16 @@
   transform: translateY(-2px);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+  .App-logo {
+    height: 40px;
   }
-  to {
-    transform: rotate(360deg);
+  .App-nav {
+    padding: 10px;
+  }
+  .App-link {
+    font-size: 0.9rem;
+    padding: 6px 10px;
   }
 }

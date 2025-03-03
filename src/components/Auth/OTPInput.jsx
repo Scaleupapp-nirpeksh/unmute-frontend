@@ -20,22 +20,22 @@ export default function OTPInput({ length = 6, onComplete, disabled = false }) {
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+    <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 }, justifyContent: 'center' }}>
       {Array.from({ length }).map((_, index) => (
         <TextField
           key={index}
           inputRef={el => inputs.current[index] = el}
           value={otp[index]}
           onChange={(e) => handleChange(e.target.value, index)}
-          inputProps={{ 
+          inputProps={{
             maxLength: 1,
             disabled: disabled  
           }}
           sx={{
-            width: { xs: 40, sm: 50 },
+            width: { xs: 60, sm: 70 },
             '& input': { 
               textAlign: 'center', 
-              fontSize: { xs: 20, sm: 24 },
+              fontSize: { xs: 24, sm: 28 },
               cursor: disabled ? 'not-allowed' : 'text'
             }
           }}
