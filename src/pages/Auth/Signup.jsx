@@ -152,7 +152,7 @@ export default function Signup() {
                 Enter your phone number to sign up.
               </Typography>
               <PhoneInput
-                country={'us'}
+                country={'in'}
                 value={phone}
                 onChange={(value) => setPhone(value.startsWith('+') ? value : `+${value}`)}
                 inputStyle={{ width: '100%', height: '40px', fontSize: '1rem' }}

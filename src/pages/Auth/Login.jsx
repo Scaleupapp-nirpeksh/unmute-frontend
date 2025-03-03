@@ -87,7 +87,7 @@ export default function Login() {
               </Typography>
               {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
               <PhoneInput
-                country={'us'}
+                country={'in'}
                 value={phone}
                 onChange={(value) =>
                   setPhone(value.startsWith('+') ? value : `+${value}`)
