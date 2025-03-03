@@ -79,7 +79,7 @@ const BUBBLES = [
 
 /*
   EXTRA_PARTICLES: Additional emoji particles to evoke happiness and celebration.
-  You can change these emojis as desired.
+  Feel free to change these emojis as desired.
 */
 const EXTRA_PARTICLES = [
   { left: '15%', size: 40, delay: '1s', duration: '16s', content: '😊' },
@@ -106,7 +106,6 @@ export default function SplashScreen({ onFinish }) {
   return (
     <Box
       sx={{
-        // Full-screen overlay
         position: 'fixed',
         top: 0,
         left: 0,
@@ -116,15 +115,14 @@ export default function SplashScreen({ onFinish }) {
         /*
           Radial Gradient:
           - The center is your logo’s color (#4a90e2) so that it blends perfectly around the logo.
-          - From 40% onward, it gradually transitions into a lighter complementary tone (#80DEEA) at the edges.
+          - From 40% onward, it gradually transitions into a lighter complementary tone (#80DEEA).
         */
         background: 'radial-gradient(circle at center, #4a90e2 0%, #4a90e2 40%, #80DEEA 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        p: 2,
-        // Fade-out animation if triggered
+        p: { xs: 1, sm: 2 },
         ...(fadeOut && {
           animation: `${fadeOutContainer} 1s forwards ease-in-out`,
         }),
@@ -144,7 +142,7 @@ export default function SplashScreen({ onFinish }) {
             backgroundColor: bubble.color,
             animation: `${bubbleFloat} ${bubble.duration} ease-out infinite`,
             animationDelay: bubble.delay,
-            zIndex: 1, // behind logo & text
+            zIndex: 1,
           }}
         />
       ))}
@@ -167,14 +165,14 @@ export default function SplashScreen({ onFinish }) {
         </Typography>
       ))}
 
-      {/* Logo (above particles) */}
+      {/* Logo (responsive sizes) */}
       <Box
         component="img"
         src={unmuteLogo}
         alt="Unmute Logo"
         sx={{
-          width: { xs: 200, sm: 300 },
-          mb: 3,
+          width: { xs: 150, sm: 200, md: 300 },
+          mb: { xs: 2, sm: 3 },
           opacity: 0,
           animation: `${bounceInLogo} 1.8s forwards ease-out`,
           zIndex: 2,
@@ -189,11 +187,12 @@ export default function SplashScreen({ onFinish }) {
           fontWeight: 700,
           color: '#fff',
           textAlign: 'center',
-          mb: 1,
+          mb: { xs: 1, sm: 2 },
           opacity: 0,
           animation: `${fadeInUp} 1.5s forwards ease-in-out`,
           animationDelay: '1.8s',
           zIndex: 2,
+          fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' },
         }}
       >
         Speak Freely, Heal Faster
@@ -207,11 +206,12 @@ export default function SplashScreen({ onFinish }) {
           fontWeight: 500,
           color: '#fff',
           textAlign: 'center',
-          px: 3,
+          px: { xs: 1, sm: 3 },
           opacity: 0,
           animation: `${fadeInUp} 1.5s forwards ease-in-out`,
           animationDelay: '2.5s',
           zIndex: 2,
+          fontSize: { xs: '1rem', sm: '1.2rem', md: '1.5rem' },
         }}
       >
         Because silence shouldn't be the only option.
