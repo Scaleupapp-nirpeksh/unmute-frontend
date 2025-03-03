@@ -29,13 +29,13 @@ export default function OTPInput({ length = 6, onComplete, disabled = false }) {
           onChange={(e) => handleChange(e.target.value, index)}
           inputProps={{ 
             maxLength: 1,
-            disabled: disabled  // now uses the prop value
+            disabled: disabled  
           }}
           sx={{
-            width: 50,
+            width: { xs: 40, sm: 50 },
             '& input': { 
               textAlign: 'center', 
-              fontSize: 24,
+              fontSize: { xs: 20, sm: 24 },
               cursor: disabled ? 'not-allowed' : 'text'
             }
           }}

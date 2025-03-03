@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Button, 
-  CircularProgress, 
-  Alert 
-} from '@mui/material';
+import { Box, Card, CardContent, Typography, Button, CircularProgress, Alert } from '@mui/material';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import OTPInput from '../../components/Auth/OTPInput';
@@ -19,7 +11,6 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [step, setStep] = useState(1);
-  // Initialize with '+' so that the input always shows it.
   const [phone, setPhone] = useState('+');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,7 +19,6 @@ export default function Login() {
     try {
       setLoading(true);
       setError('');
-      // Ensure phone always starts with '+'
       const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
       await authService.requestOTP(formattedPhone);
       setStep(2);
@@ -58,34 +48,33 @@ export default function Login() {
     <Box 
       sx={{ 
         minHeight: '100vh', 
-        // Updated to match Signup page color combo: teal-to-purple
         background: 'linear-gradient(135deg, #80DEEA, #CE93D8)', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        p: 2 
+        p: { xs: 2, sm: 3 }
       }}
     >
       <Card 
         sx={{ 
           width: { xs: '100%', sm: 400 }, 
           borderRadius: '20px', 
-          p: 4, 
+          p: { xs: 3, sm: 4 }, 
           textAlign: 'center' 
         }}
         elevation={6}
       >
         <CardContent>
-          <Typography variant="h3" sx={{ fontWeight: 700, color: '#333', mb: 2 }}>
+          <Typography variant="h3" sx={{ fontWeight: 700, color: '#333', mb: { xs: 2, sm: 3 } }}>
             Welcome Back
           </Typography>
 
           {step === 1 && (
             <>
-              <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
+              <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: '#555' }}>
                 Enter your phone number to receive an OTP.
               </Typography>
-              {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+              {error && <Alert severity="error" sx={{ mb: { xs: 2, sm: 3 } }}>{error}</Alert>}
               <PhoneInput
                 country={'in'}
                 value={phone}
@@ -121,10 +110,10 @@ export default function Login() {
 
           {step === 2 && (
             <>
-              <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
+              <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: '#555' }}>
                 Enter the 6-digit OTP sent to your phone.
               </Typography>
-              {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+              {error && <Alert severity="error" sx={{ mb: { xs: 2, sm: 3 } }}>{error}</Alert>}
               <OTPInput 
                 length={6} 
                 onComplete={handleVerifyOTP}

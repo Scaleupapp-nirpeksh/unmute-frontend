@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Button, 
-  TextField, 
-  CircularProgress, 
-  Alert 
-} from '@mui/material';
+import { Box, Card, CardContent, Typography, Button, TextField, CircularProgress, Alert } from '@mui/material';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import OTPInput from '../../components/Auth/OTPInput';
@@ -21,7 +12,6 @@ export default function Signup() {
   const { login } = useAuth();
 
   const [step, setStep] = useState(1);
-  // Initialize phone with '+' so it always starts with a plus sign
   const [phone, setPhone] = useState('+');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -39,7 +29,6 @@ export default function Signup() {
     try {
       setLoading(true);
       setError('');
-      // Ensure phone always starts with '+'
       const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
       await authService.requestOTP(formattedPhone);
       setStep(2);
@@ -65,7 +54,6 @@ export default function Signup() {
     }
   };
 
-  // Resend OTP
   const handleResendOTP = async () => {
     try {
       setResendDisabled(true);
@@ -76,34 +64,20 @@ export default function Signup() {
     }
   };
 
-  // 30-second cooldown for resending OTP
   const startResendCooldown = () => {
     setResendDisabled(true);
     setTimeout(() => setResendDisabled(false), 30000);
   };
 
-  // --- Step 3: Complete Profile ---
   const handleProfileSubmit = async () => {
     try {
       setLoading(true);
       setError('');
-
-      // Update username if provided
       if (username && username.trim() !== "") {
         await authService.changeUsername(username);
       }
-
-      // Prepare other profile details
-      const details = {
-        bio,
-        interests,
-        likes,
-        dislikes,
-        preferences
-      };
+      const details = { bio, interests, likes, dislikes, preferences };
       const { data } = await authService.updateUserDetails(details);
-
-      // Update context with new user data
       login(data.token, data.user);
       navigate('/');
     } catch (err) {
@@ -117,38 +91,36 @@ export default function Signup() {
     <Box 
       sx={{ 
         minHeight: '100vh', 
-        // Teal-to-purple gradient referencing the Unmute logo colors
         background: 'linear-gradient(135deg, #80DEEA, #CE93D8)', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        p: 2 
+        p: { xs: 2, sm: 3 }
       }}
     >
       <Card 
         sx={{ 
           width: { xs: '100%', sm: 460 }, 
           borderRadius: '20px', 
-          p: 4, 
+          p: { xs: 3, sm: 4 }, 
           textAlign: 'center' 
         }}
         elevation={6}
       >
         <CardContent>
-          <Typography variant="h3" sx={{ fontWeight: 700, color: '#333', mb: 2 }}>
+          <Typography variant="h3" sx={{ fontWeight: 700, color: '#333', mb: { xs: 2, sm: 3 } }}>
             {step === 1 ? "Get Started" : step === 2 ? "Verify OTP" : "Complete Your Profile"}
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity="error" sx={{ mb: { xs: 2, sm: 3 } }}>
               {error}
             </Alert>
           )}
 
-          {/* --- Step 1: Phone Number --- */}
           {step === 1 && (
             <>
-              <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
+              <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: '#555' }}>
                 Enter your phone number to sign up.
               </Typography>
               <PhoneInput
@@ -171,10 +143,9 @@ export default function Signup() {
             </>
           )}
 
-          {/* --- Step 2: OTP Verification --- */}
           {step === 2 && (
             <>
-              <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
+              <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: '#555' }}>
                 Enter the 6-digit OTP sent to your phone.
               </Typography>
               <OTPInput 
@@ -198,10 +169,9 @@ export default function Signup() {
             </>
           )}
 
-          {/* --- Step 3: Profile Completion --- */}
           {step === 3 && (
             <>
-              <Typography variant="subtitle1" sx={{ mb: 3, color: '#555' }}>
+              <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: '#555' }}>
                 Complete Your Profile (Optional)
               </Typography>
               <TextField
@@ -213,7 +183,7 @@ export default function Signup() {
                 placeholder="Choose a username"
                 disabled={loading}
                 inputProps={{ maxLength: 20 }}
-                sx={{ mb: 2 }}
+                sx={{ mb: { xs: 2, sm: 3 } }}
               />
               <TextField
                 fullWidth
@@ -225,7 +195,7 @@ export default function Signup() {
                 disabled={loading}
                 multiline
                 rows={3}
-                sx={{ mb: 2 }}
+                sx={{ mb: { xs: 2, sm: 3 } }}
               />
               <TextField
                 fullWidth
@@ -235,7 +205,7 @@ export default function Signup() {
                 onChange={(e) => setInterests(e.target.value)}
                 placeholder="e.g., sports, music, tech"
                 disabled={loading}
-                sx={{ mb: 2 }}
+                sx={{ mb: { xs: 2, sm: 3 } }}
               />
               <TextField
                 fullWidth
@@ -245,7 +215,7 @@ export default function Signup() {
                 onChange={(e) => setLikes(e.target.value)}
                 placeholder="What do you like?"
                 disabled={loading}
-                sx={{ mb: 2 }}
+                sx={{ mb: { xs: 2, sm: 3 } }}
               />
               <TextField
                 fullWidth
@@ -255,7 +225,7 @@ export default function Signup() {
                 onChange={(e) => setDislikes(e.target.value)}
                 placeholder="What do you dislike?"
                 disabled={loading}
-                sx={{ mb: 2 }}
+                sx={{ mb: { xs: 2, sm: 3 } }}
               />
               <TextField
                 fullWidth
@@ -265,7 +235,7 @@ export default function Signup() {
                 onChange={(e) => setPreferences(e.target.value)}
                 placeholder="Your preferences (e.g., communication style)"
                 disabled={loading}
-                sx={{ mb: 3 }}
+                sx={{ mb: { xs: 2, sm: 3 } }}
               />
               <Button
                 fullWidth
@@ -282,7 +252,7 @@ export default function Signup() {
                 variant="text"
                 size="small"
                 onClick={() => navigate('/')}
-                sx={{ mt: 2, textTransform: 'none', fontWeight: 600 }}
+                sx={{ mt: { xs: 1, sm: 2 }, textTransform: 'none', fontWeight: 600 }}
                 disabled={loading}
               >
                 Skip
