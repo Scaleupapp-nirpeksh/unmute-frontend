@@ -11,6 +11,9 @@ import SearchVents from './pages/Vent/SearchVents';
 import MyVents from './pages/Vent/MyVents';
 import VentLayout from './pages/Vent/VentLayout';
 import Matches from './pages/Matches/Matches';
+import Terms from './pages/Terms/Terms';
+import Privacy from './pages/Privacy/Privacy';
+import FAQ from './pages/FAQ/FAQ';
 import logo from './assets/logo.png';
 import SplashScreen from './components/SplashScreen';
 import './App.css';
@@ -39,6 +42,9 @@ function App() {
                 <Link to="/matches" className="App-link">Matches</Link>
                 <Link to="/login" className="App-link">Login</Link>
                 <Link to="/signup" className="App-link">Sign Up</Link>
+                <Link to="/terms" className="App-link">Terms</Link>
+                <Link to="/privacy" className="App-link">Privacy</Link>
+                <Link to="/faq" className="App-link">FAQ</Link>
               </div>
             </nav>
 
@@ -55,6 +61,9 @@ function App() {
               </Route>
               <Route path="/myvents" element={<MyVents />} />
               <Route path="/matches" element={<Matches />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/faq" element={<FAQ />} />
             </Routes>
           </div>
         </Router>
