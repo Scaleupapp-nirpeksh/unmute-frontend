@@ -87,6 +87,7 @@ export default function Home() {
   const [formDislikes, setFormDislikes] = useState([]);
   const [formMatchPreference, setFormMatchPreference] = useState('');
   const [formAnonymousChat, setFormAnonymousChat] = useState(false);
+  const [formAllowComments, setFormAllowComments] = useState(false);
   const [saving, setSaving] = useState(false);
   const [settingsError, setSettingsError] = useState('');
 
@@ -102,6 +103,13 @@ export default function Home() {
   const [reportOtherText, setReportOtherText] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
+
+  // Comment dialog state
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [activeCommentVent, setActiveCommentVent] = useState(null);
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   // Typical reasons for reporting a vent
   const reportReasons = ['Inappropriate Content', 'Harassment', 'Spam', 'Other'];
@@ -155,6 +163,7 @@ export default function Home() {
     const prefs = userDetails.preferences || {};
     setFormMatchPreference(prefs.matchPreference || '');
     setFormAnonymousChat(!!prefs.anonymousChat);
+    setFormAllowComments(userDetails.allowComments);
     setSettingsError('');
     setOpenSettings(true);
   };
@@ -178,6 +187,7 @@ export default function Home() {
         interests: formInterests,
         likes: formLikes,
         dislikes: formDislikes,
+        allowComments: formAllowComments,
         preferences: {
           matchPreference: formMatchPreference,
           anonymousChat: formAnonymousChat,
@@ -240,6 +250,44 @@ export default function Home() {
       setReportError(err.response?.data?.message || 'Failed to report vent.');
     } finally {
       setReportLoading(false);
+    }
+  };
+
+  // Functions for comment dialog
+  const openCommentDialog = (vent) => {
+    setActiveCommentVent(vent);
+    setCommentText('');
+    setCommentError('');
+    setCommentDialogOpen(true);
+  };
+
+  const closeCommentDialog = () => {
+    setCommentDialogOpen(false);
+    setActiveCommentVent(null);
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!commentText.trim()) {
+      setCommentError('Please enter a comment.');
+      return;
+    }
+    setCommentLoading(true);
+    setCommentError('');
+    try {
+      await ventService.addComment({ ventId: activeCommentVent._id, text: commentText });
+      // Refresh vents to update comments list
+      const res = await ventService.getVents({ sort: 'recent', page: 1, limit: 5 });
+      if (res.data && res.data.vents) {
+        setVents(res.data.vents);
+        // Also update the activeCommentVent so the dialog shows new comments
+        const updatedVent = res.data.vents.find(v => v._id === activeCommentVent._id);
+        setActiveCommentVent(updatedVent);
+      }
+      setCommentText('');
+    } catch (err) {
+      setCommentError(err.response?.data?.message || 'Failed to add comment.');
+    } finally {
+      setCommentLoading(false);
     }
   };
 
@@ -383,11 +431,24 @@ export default function Home() {
                 }}
               />
             </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+              <Typography variant="body1" sx={{ fontSize: '1.2rem', color: '#555', mr: 2 }}>
+                Allow Comments:
+              </Typography>
+              <Chip
+                label={userDetails.allowComments ? 'Enabled' : 'Disabled'}
+                sx={{
+                  backgroundColor: userDetails.allowComments ? '#C8E6C9' : '#FFCDD2',
+                  color: '#333',
+                  fontSize: '1.1rem',
+                }}
+              />
+            </Box>
           </Box>
         </CardContent>
       </Card>
 
-      {/* Find Matches Button - now placed right after the profile card */}
+      {/* Find Matches Button */}
       <Box sx={{ mt: 2, width: '100%', textAlign: 'center' }}>
         <Button 
           variant="contained" 
@@ -426,7 +487,6 @@ export default function Home() {
                   onClick={() => navigate(`/vent/${vent._id}`)}
                 >
                   <CardContent>
-                    {/* Title and Relative Time */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Typography variant="h5" sx={{ fontWeight: 600, color: '#333', fontSize: '1.5rem', textAlign: 'left' }}>
                         {vent.title}
@@ -435,7 +495,6 @@ export default function Home() {
                         {formatDistanceToNow(new Date(vent.createdAt), { addSuffix: true })}
                       </Typography>
                     </Box>
-                    {/* Emotion & Hashtags */}
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1, mb: 1 }}>
                       {emotionMapping[vent.emotion] && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -453,7 +512,6 @@ export default function Home() {
                         </Box>
                       )}
                     </Box>
-                    {/* Vent Text in a Vertically Scrollable Container */}
                     <Box
                       sx={{
                         maxHeight: 150,
@@ -471,7 +529,6 @@ export default function Home() {
                         {vent.text}
                       </Typography>
                     </Box>
-                    {/* Reaction Buttons */}
                     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 1 }}>
                       <Tooltip title="Heart: Shows love">
                         <IconButton onClick={() => handleReaction(vent._id, 'heart')} size="small">
@@ -497,8 +554,26 @@ export default function Home() {
                           </Typography>
                         </IconButton>
                       </Tooltip>
+                      {/* Comment Icon with count: Only show if the vent owner's allowComments is true */}
+                      {vent.userId && vent.userId.allowComments && (
+                        <Tooltip title="Comment">
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <IconButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openCommentDialog(vent);
+                              }}
+                              size="small"
+                            >
+                              <ChatBubbleOutlineIcon />
+                            </IconButton>
+                            <Typography variant="caption" sx={{ ml: 0.5 }}>
+                              {vent.comments ? vent.comments.length : 0}
+                            </Typography>
+                          </Box>
+                        </Tooltip>
+                      )}
                     </Box>
-                    {/* Report Button (if vent not by current user) */}
                     {user._id !== vent.userId && (
                       <Button
                         variant="text"
@@ -607,6 +682,14 @@ export default function Home() {
               color="primary"
             />
           </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+            <Typography variant="subtitle1" sx={{ mr: 2 }}>Allow Comments</Typography>
+            <Switch
+              checked={formAllowComments}
+              onChange={(e) => setFormAllowComments(e.target.checked)}
+              color="primary"
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseSettings} disabled={saving}>
@@ -657,6 +740,58 @@ export default function Home() {
           </Button>
           <Button onClick={handleReport} variant="contained" disabled={reportLoading}>
             {reportLoading ? <CircularProgress size={24} /> : 'Submit Report'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Comment Dialog */}
+      <Dialog open={commentDialogOpen} onClose={closeCommentDialog} fullWidth maxWidth="sm">
+        <DialogTitle>
+          {activeCommentVent ? `Comments for "${activeCommentVent.title}"` : 'Comments'}
+        </DialogTitle>
+        <DialogContent dividers>
+          {activeCommentVent && activeCommentVent.comments && activeCommentVent.comments.length > 0 ? (
+            activeCommentVent.comments.map((comment) => (
+              <Box key={comment._id} sx={{ mb: 2, p: 1, borderBottom: '1px solid #ddd' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                  <Avatar
+                    src={comment.userId.profilePic || '/default-avatar.png'}
+                    sx={{ width: 30, height: 30, mr: 1 }}
+                  >
+                    {comment.userId.username ? comment.userId.username.charAt(0).toUpperCase() : ''}
+                  </Avatar>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {comment.userId.username || 'Anonymous'}
+                  </Typography>
+                  <Typography variant="caption" sx={{ ml: 1, color: '#777' }}>
+                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  </Typography>
+                </Box>
+                <Typography variant="body2">{comment.text}</Typography>
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body2" sx={{ color: '#777' }}>
+              No comments yet.
+            </Typography>
+          )}
+          {commentError && <Alert severity="error" sx={{ mt: 2 }}>{commentError}</Alert>}
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Add a comment"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeCommentDialog} disabled={commentLoading}>
+            Close
+          </Button>
+          <Button onClick={handleCommentSubmit} variant="contained" disabled={commentLoading}>
+            {commentLoading ? <CircularProgress size={24} /> : 'Send'}
           </Button>
         </DialogActions>
       </Dialog>

@@ -25,7 +25,6 @@ import {
   ToggleButtonGroup,
   Pagination,
   Snackbar,
-  Grow,
   InputAdornment,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -75,7 +74,7 @@ const emotionMapping = {
   },
 };
 
-export default function Home() {
+export default function VentFeed() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
 
@@ -95,7 +94,7 @@ export default function Home() {
   const [saving, setSaving] = useState(false);
   const [settingsError, setSettingsError] = useState('');
 
-  // Latest vents state with pagination
+  // Vent feed state with pagination
   const [vents, setVents] = useState([]);
   const [ventsLoading, setVentsLoading] = useState(true);
   const [ventsError, setVentsError] = useState('');
@@ -114,14 +113,16 @@ export default function Home() {
   // Success Snackbar state for vent creation
   const [successOpen, setSuccessOpen] = useState(false);
 
-  // *** Missing state variables for search and sort ***
+  // Search & Sort state
   const [searchQuery, setSearchQuery] = useState('');
   const [sortType, setSortType] = useState('recent');
 
-  // *** Missing settings handler ***
-  const handleOpenSettings = () => {
-    setOpenSettings(true);
-  };
+  // Comment dialog state
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [activeCommentVent, setActiveCommentVent] = useState(null);
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   // Fetch user details on mount
   useEffect(() => {
@@ -163,7 +164,7 @@ export default function Home() {
     fetchVents();
   }, [currentPage, sortType]);
 
-  // Inline Create Vent Section state
+  // Inline Create Vent Section state and handler
   const [newVentTitle, setNewVentTitle] = useState('');
   const [newVentText, setNewVentText] = useState('');
   const [newVentEmotion, setNewVentEmotion] = useState('');
@@ -171,7 +172,6 @@ export default function Home() {
   const [createVentLoading, setCreateVentLoading] = useState(false);
   const [createVentError, setCreateVentError] = useState('');
 
-  // Inline Create Vent handler
   const handleCreateVent = async () => {
     if (!newVentTitle.trim() || !newVentText.trim() || !newVentEmotion) {
       setCreateVentError('Please fill in all required fields.');
@@ -188,14 +188,11 @@ export default function Home() {
     try {
       const res = await ventService.createVent(ventData);
       if (res.data.success) {
-        // Show success message with animation
         setSuccessOpen(true);
-        // Clear the creation form
         setNewVentTitle('');
         setNewVentText('');
         setNewVentEmotion('');
         setNewVentHashtags('');
-        // Refresh vent feed
         setCurrentPage(1);
         const resVents = await ventService.getVents({ sort: sortType, page: 1, limit: ventsPerPage });
         if (resVents.data && resVents.data.vents) {
@@ -286,7 +283,42 @@ export default function Home() {
     setCurrentPage(value);
   };
 
-  // While loading user details, show spinner
+  // Comment dialog handlers
+  const openCommentDialog = (vent) => {
+    setActiveCommentVent(vent);
+    setCommentText('');
+    setCommentError('');
+    setCommentDialogOpen(true);
+  };
+
+  const closeCommentDialog = () => {
+    setCommentDialogOpen(false);
+    setActiveCommentVent(null);
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!commentText.trim()) {
+      setCommentError('Please enter a comment.');
+      return;
+    }
+    setCommentLoading(true);
+    setCommentError('');
+    try {
+      await ventService.addComment({ ventId: activeCommentVent._id, text: commentText });
+      const res = await ventService.getVents({ sort: sortType, page: currentPage, limit: ventsPerPage });
+      if (res.data && res.data.vents) {
+        setVents(res.data.vents);
+        const updatedVent = res.data.vents.find(v => v._id === activeCommentVent._id);
+        setActiveCommentVent(updatedVent);
+      }
+      setCommentText('');
+    } catch (err) {
+      setCommentError(err.response?.data?.message || 'Failed to add comment.');
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -314,8 +346,6 @@ export default function Home() {
         alignItems: 'center',
       }}
     >
-     
-
       {/* Inline Create Vent Section */}
       <Card
         elevation={6}
@@ -467,14 +497,7 @@ export default function Home() {
                 >
                   <CardContent>
                     {/* Title and Relative Time */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mb: 1,
-                      }}
-                    >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Typography variant="h5" sx={{ fontWeight: 600, color: '#333', fontSize: '1.5rem', textAlign: 'left' }}>
                         {vent.title}
                       </Typography>
@@ -483,15 +506,7 @@ export default function Home() {
                       </Typography>
                     </Box>
                     {/* Emotion & Hashtags */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                        gap: 1,
-                        mb: 1,
-                      }}
-                    >
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1, mb: 1 }}>
                       {emotionMapping[vent.emotion] && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           {emotionMapping[vent.emotion].icon}
@@ -526,7 +541,7 @@ export default function Home() {
                         {vent.text}
                       </Typography>
                     </Box>
-                    {/* Reaction Buttons with Tooltips */}
+                    {/* Reaction Buttons with Comment Icon and Count */}
                     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 1 }}>
                       <Tooltip title="Heart: Shows love">
                         <IconButton onClick={() => handleReaction(vent._id, 'heart')} size="small">
@@ -552,6 +567,25 @@ export default function Home() {
                           </Typography>
                         </IconButton>
                       </Tooltip>
+                      {/* Comment Icon with Count: Show only if the vent owner's allowComments is true */}
+                      {vent.userId && vent.userId.allowComments && (
+                        <Tooltip title="Comment">
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <IconButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openCommentDialog(vent);
+                              }}
+                              size="small"
+                            >
+                              <ChatBubbleOutlineIcon />
+                            </IconButton>
+                            <Typography variant="caption" sx={{ ml: 0.5 }}>
+                              {vent.comments ? vent.comments.length : 0}
+                            </Typography>
+                          </Box>
+                        </Tooltip>
+                      )}
                     </Box>
                     {/* Report Button (for vents not by current user) */}
                     {user._id !== vent.userId && (
@@ -577,7 +611,7 @@ export default function Home() {
         {/* Pagination */}
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
           <Pagination
-            count={10} // Adjust count based on your backend's total pages
+            count={10} // Adjust based on your backend total pages
             page={currentPage}
             onChange={handlePageChange}
             color="primary"
@@ -634,6 +668,58 @@ export default function Home() {
           </Button>
           <Button onClick={handleReport} variant="contained" disabled={reportLoading}>
             {reportLoading ? <CircularProgress size={24} /> : 'Submit Report'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Comment Dialog */}
+      <Dialog open={commentDialogOpen} onClose={closeCommentDialog} fullWidth maxWidth="sm">
+        <DialogTitle>
+          {activeCommentVent ? `Comments for "${activeCommentVent.title}"` : 'Comments'}
+        </DialogTitle>
+        <DialogContent dividers>
+          {activeCommentVent && activeCommentVent.comments && activeCommentVent.comments.length > 0 ? (
+            activeCommentVent.comments.map((comment) => (
+              <Box key={comment._id} sx={{ mb: 2, p: 1, borderBottom: '1px solid #ddd' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                  <Avatar
+                    src={comment.userId.profilePic || '/default-avatar.png'}
+                    sx={{ width: 30, height: 30, mr: 1 }}
+                  >
+                    {comment.userId.username ? comment.userId.username.charAt(0).toUpperCase() : ''}
+                  </Avatar>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {comment.userId.username || 'Anonymous'}
+                  </Typography>
+                  <Typography variant="caption" sx={{ ml: 1, color: '#777' }}>
+                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  </Typography>
+                </Box>
+                <Typography variant="body2">{comment.text}</Typography>
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body2" sx={{ color: '#777' }}>
+              No comments yet.
+            </Typography>
+          )}
+          {commentError && <Alert severity="error" sx={{ mt: 2 }}>{commentError}</Alert>}
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Add a comment"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeCommentDialog} disabled={commentLoading}>
+            Close
+          </Button>
+          <Button onClick={handleCommentSubmit} variant="contained" disabled={commentLoading}>
+            {commentLoading ? <CircularProgress size={24} /> : 'Send'}
           </Button>
         </DialogActions>
       </Dialog>

@@ -8,4 +8,6 @@ export const ventService = {
   searchVents: (query) => api.get('/api/vent/search', { params: query }),
   getVentFeed: (params) => api.get('/api/vent/feed', { params }),
   reportVent: (data) => api.post('/api/vent/report', data),
+  addComment: (data) => api.post('/api/vent/comment', data),
+  deleteComment: (ventId, commentId) => api.delete(`/api/vent/comment/${ventId}/${commentId}`),
 };
